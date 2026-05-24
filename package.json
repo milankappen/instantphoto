@@ -95,7 +95,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/imamik/instantphoto.git"
+    "url": "git+https://github.com/milankappen/instantphoto.git"
+  },
+  "homepage": "https://github.com/milankappen/instantphoto#readme",
+  "bugs": {
+    "url": "https://github.com/milankappen/instantphoto/issues"
   },
   "publishConfig": {
     "access": "public"
