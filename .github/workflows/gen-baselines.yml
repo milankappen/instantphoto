@@ -4,7 +4,9 @@ name: Generate Visual Baselines
 # pinned Playwright container used by CI, and uploads the generated baseline
 # PNGs as an artifact. Triggered manually; removed once baselines are committed.
 on:
-  workflow_dispatch:
+  push:
+    branches: [chore/rename-github-username-to-milankappen]
+    paths: [".github/workflows/gen-baselines.yml"]
 
 jobs:
   generate:
