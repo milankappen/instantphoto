@@ -1,5 +1,11 @@
 # @instantphoto/react
 
+## 0.4.1
+
+### Patch Changes
+
+- cf52adb: Update repository, homepage, and bugs URLs to `github.com/milankappen` following the GitHub username change, and refresh dev tooling dependencies.
+
 ## 0.4.0
 
 ### Minor Changes
