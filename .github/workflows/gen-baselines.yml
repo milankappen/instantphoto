@@ -1,0 +1,34 @@
+name: Generate Visual Baselines
+
+# Temporary helper: runs the E2E suite with --update-snapshots inside the same
+# pinned Playwright container used by CI, and uploads the generated baseline
+# PNGs as an artifact. Triggered manually; removed once baselines are committed.
+on:
+  workflow_dispatch:
+
+jobs:
+  generate:
+    name: Generate baselines
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.60.0-noble
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: ".bun-version"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Generate snapshots
+        run: bun run test:e2e --update-snapshots || true
+
+      - name: Upload baselines
+        uses: actions/upload-artifact@v7
+        with:
+          name: visual-baselines
+          path: e2e/**/*.png
+          if-no-files-found: error
+          retention-days: 1

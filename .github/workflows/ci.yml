@@ -78,6 +78,10 @@ jobs:
   test-e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
+    # Pinned to the same image used to generate the visual baselines so the
+    # WebGL/canvas rendering is deterministic between generation and CI.
+    container:
+      image: mcr.microsoft.com/playwright:v1.60.0-noble
     steps:
       - uses: actions/checkout@v6
 
@@ -87,9 +91,6 @@ jobs:
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
-
-      - name: Install Playwright browsers
-        run: bunx playwright install chromium --with-deps
 
       - name: Run E2E tests
         run: bun run test:e2e
