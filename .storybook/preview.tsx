@@ -1,19 +1,24 @@
-import type { Preview } from '@storybook/react'
+import type { Preview } from '@storybook/react-vite'
 import '../src/components/InstantPhotoFrame/InstantPhotoFrame.css'
 
 const preview: Preview = {
   parameters: {
     backgrounds: {
-      default: 'warm gray',
-      values: [
-        { name: 'warm gray', value: '#e8e4df' },
-        { name: 'white',     value: '#ffffff' },
-        { name: 'dark',      value: '#2b2b2b' },
-        { name: 'light gray', value: '#f5f5f5' },
-      ],
+      options: {
+        warm_gray: { name: 'warm gray', value: '#e8e4df' },
+        white: { name: 'white',     value: '#ffffff' },
+        dark: { name: 'dark',      value: '#2b2b2b' },
+        light_gray: { name: 'light gray', value: '#f5f5f5' }
+      }
     },
     layout: 'centered',
   },
+
+  initialGlobals: {
+    backgrounds: {
+      value: 'warm_gray'
+    }
+  }
 }
 
 export default preview

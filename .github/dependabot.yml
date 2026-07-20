@@ -12,6 +12,23 @@ updates:
     labels:
       - "dependencies"
       - "javascript"
+    groups:
+      storybook:
+        patterns:
+          - "@storybook/*"
+          - "storybook"
+          - "eslint-plugin-storybook"
+      react-ecosystem:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react*"
+      vite-ecosystem:
+        patterns:
+          - "vite"
+          - "@vitejs/*"
+          - "vitest"
+          - "@vitest/*"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"

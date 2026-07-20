@@ -1,6 +1,7 @@
 # @instantphoto/react
 
 [![CI](https://img.shields.io/github/actions/workflow/status/milankappen/instantphoto/ci.yml?branch=main&label=CI&logo=github)](https://github.com/milankappen/instantphoto/actions/workflows/ci.yml)
+[![Storybook](https://img.shields.io/badge/Storybook-live-ff4785?logo=storybook&logoColor=white)](https://milankappen.github.io/instantphoto/)
 [![npm](https://img.shields.io/npm/v/@instantphoto/react?logo=npm&logoColor=white&color=cb0000)](https://www.npmjs.com/package/@instantphoto/react)
 [![Coverage](https://img.shields.io/codecov/c/github/milankappen/instantphoto?logo=codecov&logoColor=white)](https://codecov.io/gh/milankappen/instantphoto)
 [![Bundle size](https://img.shields.io/bundlephobia/minzip/@instantphoto/react?label=gzipped&color=22c55e)](https://bundlephobia.com/package/@instantphoto/react)
@@ -31,6 +32,12 @@ bun add @instantphoto/react
 ```bash
 bun add react react-dom   # ^18 or ^19
 ```
+
+---
+
+## Live demo
+
+Browse the component stories on [GitHub Pages](https://milankappen.github.io/instantphoto/).
 
 ---
 
@@ -340,6 +347,9 @@ bun run storybook
 
 # Run E2E tests against a built Storybook
 bun run test:e2e
+
+# Full local CI parity (lint, typecheck, coverage, build, storybook, e2e)
+bun run test:ci
 
 # Build the package
 bun run build

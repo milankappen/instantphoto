@@ -91,14 +91,14 @@ describe('useContainedWidth – height-constrained parent', () => {
 
 describe('useContainedWidth – fallback when no frame ref', () => {
   it('returns the requested width as-is when frameRef.current is null', () => {
-    const frameRef = { current: null } as React.RefObject<HTMLDivElement>
+    const frameRef = { current: null } as React.RefObject<HTMLDivElement | null>
     const { result } = renderHook(() => useContainedWidth(frameRef, 350, 1))
     // fitWidth stays null, so requestedWidth is returned
     expect(result.current).toBe(350)
   })
 
   it('returns the string width as-is when frameRef.current is null', () => {
-    const frameRef = { current: null } as React.RefObject<HTMLDivElement>
+    const frameRef = { current: null } as React.RefObject<HTMLDivElement | null>
     const { result } = renderHook(() => useContainedWidth(frameRef, '75%', 1))
     expect(result.current).toBe('75%')
   })

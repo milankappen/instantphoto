@@ -51,7 +51,7 @@ interface UseGesturesOptions {
 
 interface UseGesturesResult {
   /** Attach to the invisible overlay div that sits over the canvas. */
-  overlayRef: React.RefObject<HTMLDivElement>
+  overlayRef: React.RefObject<HTMLDivElement | null>
 }
 
 // UV-space pan step per arrow key press
