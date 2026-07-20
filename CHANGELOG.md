@@ -5,6 +5,8 @@
 ### Patch Changes
 
 - Add a live Storybook demo on GitHub Pages and update the npm package homepage. No public API changes.
+- Compact the Image Editor Storybook story so the preview and parameter controls are visible at the same time.
+- Bump GitHub Pages deploy actions to latest major versions.
 
 ## 0.4.1
 
