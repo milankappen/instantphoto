@@ -1,6 +1,6 @@
 {
   "name": "@instantphoto/react",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "React components for instant film photo effects using WebGL",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -100,7 +100,7 @@
     "type": "git",
     "url": "git+https://github.com/milankappen/instantphoto.git"
   },
-  "homepage": "https://github.com/milankappen/instantphoto#readme",
+  "homepage": "https://milankappen.github.io/instantphoto/",
   "bugs": {
     "url": "https://github.com/milankappen/instantphoto/issues"
   },

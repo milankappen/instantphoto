@@ -47,10 +47,10 @@ const LABEL: Record<string, string> = {
 }
 
 const DISPLAY_WIDTHS: Record<FrameType, number> = {
-  polaroid_600: 640,
-  instax_mini: 440,
-  instax_square: 560,
-  instax_wide: 860,
+  polaroid_600: 220,
+  instax_mini: 160,
+  instax_square: 200,
+  instax_wide: 260,
 }
 
 function downloadBlob(blob: Blob, filename: string) {
@@ -152,16 +152,8 @@ function ImageEditorPanel() {
   const editorKey = `${frameType}-${src ?? 'empty'}`
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 16,
-        maxWidth: 1700,
-        width: '100%',
-      }}
-    >
-      <div style={topSplitStyle}>
+    <div style={{ padding: 16 }}>
+      <div style={panelStyle}>
         <div style={previewColumnStyle}>
           <div style={previewSurfaceStyle}>
             <InstantPhotoImageEditor
@@ -189,14 +181,13 @@ function ImageEditorPanel() {
               onTransformChange={handleTransformChange}
             />
           </div>
-          {src && (
-            <div style={{ fontSize: 11, color: '#888' }}>
+          {src ? (
+            <div style={hintStyle}>
               Zoom: <strong>{zoom.toFixed(1)}×</strong>
               &nbsp;·&nbsp;drag to pan&nbsp;·&nbsp;scroll or pinch to zoom
             </div>
-          )}
-          {!src && (
-            <div style={{ fontSize: 11, color: '#aaa', fontStyle: 'italic' }}>
+          ) : (
+            <div style={{ ...hintStyle, fontStyle: 'italic', color: '#aaa' }}>
               Upload a photo to begin
             </div>
           )}
@@ -268,18 +259,9 @@ function ImageEditorPanel() {
               Live update while dragging
             </label>
           </fieldset>
-        </div>
-      </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <div style={sectionHeadingStyle}>Visual Parameters</div>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-            gap: 14,
-          }}
-        >
+          <div style={sectionHeadingStyle}>Visual Parameters</div>
+
           <fieldset style={fieldsetStyle}>
             <legend style={legendStyle}>Grain</legend>
             <label style={sliderRowStyle}>
@@ -396,7 +378,7 @@ function ImageEditorPanel() {
             <legend style={legendStyle}>Shadow Wide</legend>
             <label style={sliderRowStyle}>
               <span>
-                Shadow wide intensity: <strong>{shadowWideIntensity.toFixed(2)}</strong>
+                Intensity: <strong>{shadowWideIntensity.toFixed(2)}</strong>
               </span>
               <input
                 type="range"
@@ -409,7 +391,7 @@ function ImageEditorPanel() {
             </label>
             <label style={sliderRowStyle}>
               <span>
-                Shadow wide start: <strong>{shadowWideStart.toFixed(3)}</strong>
+                Start: <strong>{shadowWideStart.toFixed(3)}</strong>
               </span>
               <input
                 type="range"
@@ -422,7 +404,7 @@ function ImageEditorPanel() {
             </label>
             <label style={sliderRowStyle}>
               <span>
-                Shadow wide end: <strong>{shadowWideEnd.toFixed(3)}</strong>
+                End: <strong>{shadowWideEnd.toFixed(3)}</strong>
               </span>
               <input
                 type="range"
@@ -439,7 +421,7 @@ function ImageEditorPanel() {
             <legend style={legendStyle}>Shadow Fine</legend>
             <label style={sliderRowStyle}>
               <span>
-                Shadow fine intensity: <strong>{shadowFineIntensity.toFixed(2)}</strong>
+                Intensity: <strong>{shadowFineIntensity.toFixed(2)}</strong>
               </span>
               <input
                 type="range"
@@ -452,7 +434,7 @@ function ImageEditorPanel() {
             </label>
             <label style={sliderRowStyle}>
               <span>
-                Shadow fine start: <strong>{shadowFineStart.toFixed(4)}</strong>
+                Start: <strong>{shadowFineStart.toFixed(4)}</strong>
               </span>
               <input
                 type="range"
@@ -465,7 +447,7 @@ function ImageEditorPanel() {
             </label>
             <label style={sliderRowStyle}>
               <span>
-                Shadow fine end: <strong>{shadowFineEnd.toFixed(4)}</strong>
+                End: <strong>{shadowFineEnd.toFixed(4)}</strong>
               </span>
               <input
                 type="range"
@@ -477,125 +459,132 @@ function ImageEditorPanel() {
               />
             </label>
           </fieldset>
-        </div>
-      </div>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: 14,
-          alignItems: 'start',
-        }}
-      >
-        <fieldset style={fieldsetStyle}>
-          <legend style={legendStyle}>Download target</legend>
-          {(['image', 'frame'] as CaptureTarget[]).map(t => (
-            <label key={t} style={radioRowStyle}>
-              <input
-                type="radio"
-                name="target"
-                value={t}
-                checked={target === t}
-                onChange={() => setTarget(t)}
-              />
-              {LABEL[t]}
-            </label>
-          ))}
-        </fieldset>
+          <fieldset style={fieldsetStyle}>
+            <legend style={legendStyle}>Download target</legend>
+            {(['image', 'frame'] as CaptureTarget[]).map(t => (
+              <label key={t} style={radioRowStyle}>
+                <input
+                  type="radio"
+                  name="target"
+                  value={t}
+                  checked={target === t}
+                  onChange={() => setTarget(t)}
+                />
+                {LABEL[t]}
+              </label>
+            ))}
+          </fieldset>
 
-        <fieldset style={fieldsetStyle}>
-          <legend style={legendStyle}>File format</legend>
-          {(['image/png', 'image/jpeg', 'image/webp'] as ExportFormat[]).map(f => (
-            <label key={f} style={radioRowStyle}>
-              <input
-                type="radio"
-                name="format"
-                value={f}
-                checked={format === f}
-                onChange={() => setFormat(f)}
-              />
-              {LABEL[f]}
-            </label>
-          ))}
-          {format !== 'image/png' && (
-            <label style={{ ...radioRowStyle, marginTop: 6, flexDirection: 'column', gap: 2 }}>
-              <span>
-                Quality: <strong>{Math.round(quality * 100)}%</strong>
-              </span>
-              <input
-                type="range"
-                min={0.1}
-                max={1}
-                step={0.01}
-                value={quality}
-                onChange={e => setQuality(parseFloat(e.target.value))}
-                style={{ width: '100%' }}
-              />
-            </label>
-          )}
-        </fieldset>
+          <fieldset style={fieldsetStyle}>
+            <legend style={legendStyle}>File format</legend>
+            {(['image/png', 'image/jpeg', 'image/webp'] as ExportFormat[]).map(f => (
+              <label key={f} style={radioRowStyle}>
+                <input
+                  type="radio"
+                  name="format"
+                  value={f}
+                  checked={format === f}
+                  onChange={() => setFormat(f)}
+                />
+                {LABEL[f]}
+              </label>
+            ))}
+            {format !== 'image/png' && (
+              <label style={{ ...radioRowStyle, marginTop: 6, flexDirection: 'column', gap: 2 }}>
+                <span>
+                  Quality: <strong>{Math.round(quality * 100)}%</strong>
+                </span>
+                <input
+                  type="range"
+                  min={0.1}
+                  max={1}
+                  step={0.01}
+                  value={quality}
+                  onChange={e => setQuality(parseFloat(e.target.value))}
+                  style={{ width: '100%' }}
+                />
+              </label>
+            )}
+          </fieldset>
 
-        <div style={{ fontSize: 11, color: '#666', lineHeight: 1.6, gridColumn: '1 / -1' }}>
-          <div>
-            Canvas:{' '}
-            <strong>
-              {cw} × {ch} px
-            </strong>{' '}
-            ({PRINT_DPI} DPI)
-          </div>
-          <div>
-            Output: <strong>{outputDims}</strong>
-          </div>
-          {lastSize && (
+          <div style={metaStyle}>
             <div>
-              Last download: <strong>{lastSize}</strong>
+              Canvas:{' '}
+              <strong>
+                {cw} × {ch} px
+              </strong>{' '}
+              ({PRINT_DPI} DPI)
             </div>
-          )}
-        </div>
+            <div>
+              Output: <strong>{outputDims}</strong>
+            </div>
+            {lastSize && (
+              <div>
+                Last download: <strong>{lastSize}</strong>
+              </div>
+            )}
+          </div>
 
-        <button
-          onClick={handleDownload}
-          disabled={!capture || busy}
-          style={{ ...buttonStyle(!capture || busy), gridColumn: '1 / -1' }}
-        >
-          {busy ? 'Preparing…' : capture ? '⬇ Download' : src ? 'Rendering…' : 'No image'}
-        </button>
+          <button
+            onClick={handleDownload}
+            disabled={!capture || busy}
+            style={buttonStyle(!capture || busy)}
+          >
+            {busy ? 'Preparing…' : capture ? '⬇ Download' : src ? 'Rendering…' : 'No image'}
+          </button>
+        </div>
       </div>
     </div>
   )
 }
 
 // Minimal inline styles
-const topSplitStyle: React.CSSProperties = {
+const panelStyle: React.CSSProperties = {
   display: 'flex',
-  gap: 18,
-  flexWrap: 'wrap',
+  gap: 16,
   alignItems: 'flex-start',
+  width: '100%',
+  maxWidth: 920,
+  minHeight: 'min(720px, calc(100vh - 32px))',
 }
 const previewColumnStyle: React.CSSProperties = {
-  flex: '2 1 780px',
-  minWidth: 0,
+  flex: '0 0 auto',
+  width: 240,
   display: 'flex',
   flexDirection: 'column',
-  gap: 10,
+  gap: 8,
+  position: 'sticky',
+  top: 0,
 }
 const previewSurfaceStyle: React.CSSProperties = {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  minHeight: 540,
   border: '1px solid #e5e5e5',
   borderRadius: 8,
   background: 'linear-gradient(180deg, #fcfcfc 0%, #f6f6f6 100%)',
-  padding: 16,
+  padding: 12,
 }
 const controlColumnStyle: React.CSSProperties = {
-  flex: '1 1 340px',
-  minWidth: 300,
+  flex: '1 1 320px',
+  minWidth: 0,
   display: 'flex',
   flexDirection: 'column',
-  gap: 12,
+  gap: 10,
+  maxHeight: 'calc(100vh - 32px)',
+  overflowY: 'auto',
+  paddingRight: 4,
+}
+const hintStyle: React.CSSProperties = {
+  fontSize: 11,
+  color: '#888',
+  lineHeight: 1.4,
+}
+const metaStyle: React.CSSProperties = {
+  fontSize: 11,
+  color: '#666',
+  lineHeight: 1.6,
 }
 const sectionHeadingStyle: React.CSSProperties = {
   fontSize: 12,
@@ -647,7 +636,7 @@ function buttonStyle(disabled: boolean): React.CSSProperties {
 export const ImageEditor: Story = {
   name: '✏️ Image Editor',
   render: () => <ImageEditorPanel />,
-  parameters: { layout: 'padded' },
+  parameters: { layout: 'fullscreen' },
 }
 
 // ---------------------------------------------------------------------------
