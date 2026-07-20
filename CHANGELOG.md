@@ -1,5 +1,11 @@
 # @instantphoto/react
 
+## 0.4.3
+
+### Patch Changes
+
+- Improve Storybook demo controls: fix radio groups on docs pages with unique names, use compact horizontal layouts, and restore button padding. No public API changes.
+
 ## 0.4.2
 
 ### Patch Changes

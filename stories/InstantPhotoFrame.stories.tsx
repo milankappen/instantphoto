@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import {
   InstantPhotoFrame,
@@ -10,6 +10,14 @@ import {
   type FilmType,
   type FrameType,
 } from '../src'
+import {
+  buttonStyle,
+  choiceInputStyle,
+  fieldsetStyle,
+  legendStyle,
+  radioRowStyle,
+  storyRadioName,
+} from './storyUi'
 
 // ---------------------------------------------------------------------------
 // Stable Picsum seed images matched to each format's aspect ratio
@@ -165,6 +173,7 @@ function downloadBlob(blob: Blob, filename: string) {
 }
 
 function ExportPlaygroundPanel() {
+  const panelId = useId()
   const [frameType, setFrameType] = useState<FrameType>('polaroid_600')
   const [filmType, setFilmType] = useState<FilmType>('polaroid')
   const [target, setTarget] = useState<CaptureTarget>('image')
@@ -234,9 +243,10 @@ function ExportPlaygroundPanel() {
               <label key={ft} style={radioRowStyle}>
                 <input
                   type="radio"
-                  name="frameType"
+                  name={storyRadioName(panelId, 'frameType')}
                   value={ft}
                   checked={frameType === ft}
+                  style={choiceInputStyle}
                   onChange={() => {
                     setFrameType(ft)
                     setCapture(undefined)
@@ -254,9 +264,10 @@ function ExportPlaygroundPanel() {
             <label key={f} style={radioRowStyle}>
               <input
                 type="radio"
-                name="filmType"
+                name={storyRadioName(panelId, 'filmType')}
                 value={f}
                 checked={filmType === f}
+                style={choiceInputStyle}
                 onChange={() => setFilmType(f)}
               />
               {LABEL[f]}
@@ -270,9 +281,10 @@ function ExportPlaygroundPanel() {
             <label key={t} style={radioRowStyle}>
               <input
                 type="radio"
-                name="target"
+                name={storyRadioName(panelId, 'target')}
                 value={t}
                 checked={target === t}
+                style={choiceInputStyle}
                 onChange={() => setTarget(t)}
               />
               {LABEL[t]}
@@ -286,9 +298,10 @@ function ExportPlaygroundPanel() {
             <label key={f} style={radioRowStyle}>
               <input
                 type="radio"
-                name="format"
+                name={storyRadioName(panelId, 'format')}
                 value={f}
                 checked={format === f}
+                style={choiceInputStyle}
                 onChange={() => setFormat(f)}
               />
               {LABEL[f]}
@@ -341,40 +354,6 @@ function ExportPlaygroundPanel() {
       </div>
     </div>
   )
-}
-
-// Minimal inline styles — no external dependencies
-const fieldsetStyle: React.CSSProperties = {
-  border: '1px solid #ddd',
-  borderRadius: 6,
-  padding: '8px 12px',
-  margin: 0,
-}
-const legendStyle: React.CSSProperties = {
-  fontSize: 11,
-  fontWeight: 600,
-  textTransform: 'uppercase',
-  letterSpacing: '0.05em',
-  color: '#888',
-}
-const radioRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 6,
-  fontSize: 13,
-  cursor: 'pointer',
-}
-function buttonStyle(disabled: boolean): React.CSSProperties {
-  return {
-    padding: '10px 0',
-    borderRadius: 6,
-    border: 'none',
-    cursor: disabled ? 'not-allowed' : 'pointer',
-    background: disabled ? '#ccc' : '#1a1a1a',
-    color: '#fff',
-    fontWeight: 600,
-    fontSize: 14,
-  }
 }
 
 export const ExportPlayground: Story = {
