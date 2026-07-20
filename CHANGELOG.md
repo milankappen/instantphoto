@@ -1,5 +1,11 @@
 # @instantphoto/react
 
+## 0.4.2
+
+### Patch Changes
+
+- Add a live Storybook demo on GitHub Pages and update the npm package homepage. No public API changes.
+
 ## 0.4.1
 
 ### Patch Changes
