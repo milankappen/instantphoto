@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useId, useRef, useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import {
   FILM_PROFILES,
@@ -13,6 +13,18 @@ import {
   type ImageTransform,
   type InstantPhotoSettings,
 } from '../src'
+import {
+  buttonStyle,
+  choiceInputStyle,
+  compactFieldsetStyle,
+  controlRowLabelStyle,
+  controlRowStyle,
+  fieldsetStyle,
+  legendStyle,
+  radioGroupWrapStyle,
+  radioInlineStyle,
+  storyRadioName,
+} from './storyUi'
 
 // ---------------------------------------------------------------------------
 // Storybook meta
@@ -65,6 +77,7 @@ function downloadBlob(blob: Blob, filename: string) {
 // ---------------------------------------------------------------------------
 
 function ImageEditorPanel() {
+  const panelId = useId()
   const [frameType, setFrameType] = useState<FrameType>('polaroid_600')
   const [filmType, setFilmType] = useState<FilmType>('polaroid')
   const [target, setTarget] = useState<CaptureTarget>('image')
@@ -194,7 +207,7 @@ function ImageEditorPanel() {
         </div>
 
         <div style={controlColumnStyle}>
-          <fieldset style={fieldsetStyle}>
+          <fieldset style={compactFieldsetStyle}>
             <legend style={legendStyle}>Image</legend>
             <input
               ref={fileInputRef}
@@ -208,56 +221,63 @@ function ImageEditorPanel() {
             </button>
           </fieldset>
 
-          <fieldset style={fieldsetStyle}>
-            <legend style={legendStyle}>Format</legend>
-            {(['polaroid_600', 'instax_mini', 'instax_square', 'instax_wide'] as FrameType[]).map(
-              ft => (
-                <label key={ft} style={radioRowStyle}>
-                  <input
-                    type="radio"
-                    name="frameType"
-                    value={ft}
-                    checked={frameType === ft}
-                    onChange={() => {
-                      setFrameType(ft)
-                      setCapture(undefined)
-                    }}
-                  />
-                  {LABEL[ft]}
-                </label>
-              )
-            )}
-          </fieldset>
-
-          <fieldset style={fieldsetStyle}>
-            <legend style={legendStyle}>Film</legend>
-            {(['polaroid', 'instax', 'original'] as FilmType[]).map(f => (
-              <label key={f} style={radioRowStyle}>
+          <fieldset style={compactFieldsetStyle}>
+            <legend style={legendStyle}>Frame &amp; Film</legend>
+            <div style={controlRowStyle}>
+              <span style={controlRowLabelStyle}>Format</span>
+              <div style={radioGroupWrapStyle}>
+                {(
+                  ['polaroid_600', 'instax_mini', 'instax_square', 'instax_wide'] as FrameType[]
+                ).map(ft => (
+                  <label key={ft} style={radioInlineStyle}>
+                    <input
+                      type="radio"
+                      name={storyRadioName(panelId, 'frameType')}
+                      value={ft}
+                      checked={frameType === ft}
+                      style={choiceInputStyle}
+                      onChange={() => {
+                        setFrameType(ft)
+                        setCapture(undefined)
+                      }}
+                    />
+                    {LABEL[ft]}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div style={controlRowStyle}>
+              <span style={controlRowLabelStyle}>Film</span>
+              <div style={radioGroupWrapStyle}>
+                {(['polaroid', 'instax', 'original'] as FilmType[]).map(f => (
+                  <label key={f} style={radioInlineStyle}>
+                    <input
+                      type="radio"
+                      name={storyRadioName(panelId, 'filmType')}
+                      value={f}
+                      checked={filmType === f}
+                      style={choiceInputStyle}
+                      onChange={() => {
+                        setFilmType(f)
+                        applyFilmDefaults(f)
+                      }}
+                    />
+                    {LABEL[f]}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div style={controlRowStyle}>
+              <label style={{ ...radioInlineStyle, marginLeft: 52 }}>
                 <input
-                  type="radio"
-                  name="filmType"
-                  value={f}
-                  checked={filmType === f}
-                  onChange={() => {
-                    setFilmType(f)
-                    applyFilmDefaults(f)
-                  }}
+                  type="checkbox"
+                  checked={liveUpdateDuringGesture}
+                  style={choiceInputStyle}
+                  onChange={e => setLiveUpdateDuringGesture(e.target.checked)}
                 />
-                {LABEL[f]}
+                Live update while dragging
               </label>
-            ))}
-          </fieldset>
-
-          <fieldset style={fieldsetStyle}>
-            <legend style={legendStyle}>Interaction</legend>
-            <label style={radioRowStyle}>
-              <input
-                type="checkbox"
-                checked={liveUpdateDuringGesture}
-                onChange={e => setLiveUpdateDuringGesture(e.target.checked)}
-              />
-              Live update while dragging
-            </label>
+            </div>
           </fieldset>
 
           <div style={sectionHeadingStyle}>Visual Parameters</div>
@@ -460,38 +480,46 @@ function ImageEditorPanel() {
             </label>
           </fieldset>
 
-          <fieldset style={fieldsetStyle}>
-            <legend style={legendStyle}>Download target</legend>
-            {(['image', 'frame'] as CaptureTarget[]).map(t => (
-              <label key={t} style={radioRowStyle}>
-                <input
-                  type="radio"
-                  name="target"
-                  value={t}
-                  checked={target === t}
-                  onChange={() => setTarget(t)}
-                />
-                {LABEL[t]}
-              </label>
-            ))}
-          </fieldset>
-
-          <fieldset style={fieldsetStyle}>
-            <legend style={legendStyle}>File format</legend>
-            {(['image/png', 'image/jpeg', 'image/webp'] as ExportFormat[]).map(f => (
-              <label key={f} style={radioRowStyle}>
-                <input
-                  type="radio"
-                  name="format"
-                  value={f}
-                  checked={format === f}
-                  onChange={() => setFormat(f)}
-                />
-                {LABEL[f]}
-              </label>
-            ))}
+          <fieldset style={compactFieldsetStyle}>
+            <legend style={legendStyle}>Export</legend>
+            <div style={controlRowStyle}>
+              <span style={controlRowLabelStyle}>Target</span>
+              <div style={radioGroupWrapStyle}>
+                {(['image', 'frame'] as CaptureTarget[]).map(t => (
+                  <label key={t} style={radioInlineStyle}>
+                    <input
+                      type="radio"
+                      name={storyRadioName(panelId, 'target')}
+                      value={t}
+                      checked={target === t}
+                      style={choiceInputStyle}
+                      onChange={() => setTarget(t)}
+                    />
+                    {LABEL[t]}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div style={controlRowStyle}>
+              <span style={controlRowLabelStyle}>Format</span>
+              <div style={radioGroupWrapStyle}>
+                {(['image/png', 'image/jpeg', 'image/webp'] as ExportFormat[]).map(f => (
+                  <label key={f} style={radioInlineStyle}>
+                    <input
+                      type="radio"
+                      name={storyRadioName(panelId, 'format')}
+                      value={f}
+                      checked={format === f}
+                      style={choiceInputStyle}
+                      onChange={() => setFormat(f)}
+                    />
+                    {LABEL[f]}
+                  </label>
+                ))}
+              </div>
+            </div>
             {format !== 'image/png' && (
-              <label style={{ ...radioRowStyle, marginTop: 6, flexDirection: 'column', gap: 2 }}>
+              <label style={{ ...sliderRowStyle, marginTop: 6, marginLeft: 52 }}>
                 <span>
                   Quality: <strong>{Math.round(quality * 100)}%</strong>
                 </span>
@@ -574,7 +602,7 @@ const controlColumnStyle: React.CSSProperties = {
   gap: 10,
   maxHeight: 'calc(100vh - 32px)',
   overflowY: 'auto',
-  paddingRight: 4,
+  paddingRight: 8,
 }
 const hintStyle: React.CSSProperties = {
   fontSize: 11,
@@ -592,26 +620,7 @@ const sectionHeadingStyle: React.CSSProperties = {
   textTransform: 'uppercase',
   letterSpacing: '0.06em',
   color: '#666',
-}
-const fieldsetStyle: React.CSSProperties = {
-  border: '1px solid #ddd',
-  borderRadius: 6,
-  padding: '8px 12px',
-  margin: 0,
-}
-const legendStyle: React.CSSProperties = {
-  fontSize: 11,
-  fontWeight: 600,
-  textTransform: 'uppercase',
-  letterSpacing: '0.05em',
-  color: '#888',
-}
-const radioRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 6,
-  fontSize: 13,
-  cursor: 'pointer',
+  padding: '0 4px',
 }
 const sliderRowStyle: React.CSSProperties = {
   display: 'flex',
@@ -619,18 +628,7 @@ const sliderRowStyle: React.CSSProperties = {
   gap: 4,
   fontSize: 12,
   marginTop: 6,
-}
-function buttonStyle(disabled: boolean): React.CSSProperties {
-  return {
-    padding: '10px 0',
-    borderRadius: 6,
-    border: 'none',
-    cursor: disabled ? 'not-allowed' : 'pointer',
-    background: disabled ? '#ccc' : '#1a1a1a',
-    color: '#fff',
-    fontWeight: 600,
-    fontSize: 14,
-  }
+  padding: '0 2px',
 }
 
 export const ImageEditor: Story = {

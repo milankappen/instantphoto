@@ -1,6 +1,13 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { InstantPhotoEditor, type CaptureFn, type FrameType } from '../src'
+import {
+  buttonStyle,
+  choiceInputStyle,
+  radioGroupHorizontalStyle,
+  radioInlineStyle,
+  storyRadioName,
+} from './storyUi'
 
 // ---------------------------------------------------------------------------
 // Storybook meta
@@ -38,6 +45,7 @@ function downloadBlob(blob: Blob, filename: string) {
 // ---------------------------------------------------------------------------
 
 function UploadDeletePanel() {
+  const panelId = useId()
   const [src, setSrc] = useState<string | undefined>()
   const [capture, setCapture] = useState<CaptureFn | undefined>()
   const [frameType, setFrameType] = useState<FrameType>('polaroid_600')
@@ -67,26 +75,39 @@ function UploadDeletePanel() {
     }
   }
 
+  const frameLabels: Record<FrameType, string> = {
+    polaroid_600: 'Polaroid 600',
+    instax_mini: 'Instax Mini',
+    instax_square: 'Instax Square',
+    instax_wide: 'Instax Wide',
+  }
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
-      <div style={{ display: 'flex', gap: 8, fontSize: 13 }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 16,
+        alignItems: 'center',
+        padding: '0 12px',
+      }}
+    >
+      <div style={radioGroupHorizontalStyle}>
         {(['polaroid_600', 'instax_mini', 'instax_square', 'instax_wide'] as FrameType[]).map(
           ft => (
-            <label
-              key={ft}
-              style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}
-            >
+            <label key={ft} style={radioInlineStyle}>
               <input
                 type="radio"
-                name="frameType"
+                name={storyRadioName(panelId, 'frameType')}
                 value={ft}
                 checked={frameType === ft}
+                style={choiceInputStyle}
                 onChange={() => {
                   setFrameType(ft)
                   setCapture(undefined)
                 }}
               />
-              {ft.replace('_', ' ')}
+              {frameLabels[ft]}
             </label>
           )
         )}
@@ -105,16 +126,7 @@ function UploadDeletePanel() {
       <button
         onClick={handleDownload}
         disabled={!capture || busy}
-        style={{
-          padding: '8px 20px',
-          borderRadius: 6,
-          border: 'none',
-          cursor: !capture || busy ? 'not-allowed' : 'pointer',
-          background: !capture || busy ? '#ccc' : '#1a1a1a',
-          color: '#fff',
-          fontWeight: 600,
-          fontSize: 13,
-        }}
+        style={{ ...buttonStyle(!capture || busy, false), fontSize: 13, minWidth: 220 }}
       >
         {busy ? 'Preparing…' : capture ? '⬇ Download' : src ? 'Rendering…' : 'Upload a photo first'}
       </button>
