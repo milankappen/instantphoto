@@ -234,6 +234,24 @@ export interface InstantPhotoFrameProps {
    * `0` (default) picks a random seed on every render.
    */
   seed?: number
+  /**
+   * Pan/zoom transform to render the source image with, instead of the
+   * default auto center-fill crop. Pass a previously-saved
+   * `ImageTransform` (e.g. from `InstantPhotoImageEditor`'s
+   * `onTransformChange`/`onSettingsChange`) to reconstruct the exact same
+   * framing anywhere the original source image is available — no need to
+   * bake the crop into a rendered/exported raster to preserve it.
+   *
+   * ```tsx
+   * // Store just the original image + the transform the user chose...
+   * const [transform, setTransform] = useState<ImageTransform>()
+   * <InstantPhotoImageEditor src={original} onTransformChange={setTransform} />
+   *
+   * // ...and reconstruct identically anywhere later, from the same source:
+   * <InstantPhotoFrame src={original} transform={transform} />
+   * ```
+   */
+  transform?: ImageTransform
   /** CSS width of the frame. Defaults to `'100%'`. */
   width?: number | string
   className?: string
@@ -312,6 +330,16 @@ export interface InstantPhotoImageEditorProps {
    * `0` (default) picks a random seed on every render.
    */
   seed?: number
+  /**
+   * Initial pan/zoom transform to open the editor with — e.g. a transform
+   * previously saved via `onTransformChange`/`onSettingsChange`, so a guest
+   * (or admin) re-opening an already-edited photo resumes exactly where they
+   * left off instead of a fresh center-fill crop. This seeds the editor only:
+   * it's read once per `src` (re-applied whenever `src` changes), not synced
+   * on every render, so it never fights an in-progress gesture. Defaults to
+   * `{ panX: 0, panY: 0, scale: 1 }` (center-fill, no zoom) when omitted.
+   */
+  transform?: ImageTransform
   /** Maximum zoom factor. Defaults to `5`. */
   maxZoom?: number
   /**

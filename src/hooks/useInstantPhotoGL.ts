@@ -16,7 +16,7 @@
 
 import { useEffect, useLayoutEffect, useRef } from 'react'
 
-import type { CaptureFn, InstantPhotoGLOptions } from '../types'
+import type { CaptureFn, ImageTransform, InstantPhotoGLOptions } from '../types'
 import { createPipeline, destroyPipeline, render, type Pipeline } from '../gl/pipeline'
 import { loadImageBitmap } from '../utils/loadImageBitmap'
 
@@ -28,6 +28,7 @@ export function useInstantPhotoGL(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   src: string | HTMLImageElement | ImageBitmap,
   options: InstantPhotoGLOptions,
+  transform: ImageTransform | undefined,
   callbacks: {
     onRender?: (capture: CaptureFn) => void
     onError?: (err: Error) => void
@@ -43,14 +44,16 @@ export function useInstantPhotoGL(
   const onRenderRef = useRef(callbacks.onRender)
   const onErrorRef = useRef(callbacks.onError)
   const captureFnRef = useRef(callbacks.captureFn)
-  // Keep options accessible in context-restored handler without stale closure
+  // Keep options/transform accessible in context-restored handler without stale closure
   const optionsRef = useRef(options)
+  const transformRef = useRef(transform)
 
   useEffect(() => {
     onRenderRef.current = callbacks.onRender
     onErrorRef.current = callbacks.onError
     captureFnRef.current = callbacks.captureFn
     optionsRef.current = options
+    transformRef.current = transform
   })
 
   // -------------------------------------------------------------------------
@@ -97,7 +100,7 @@ export function useInstantPhotoGL(
     function handleContextRestored() {
       initPipeline()
       if (pipelineRef.current && imageRef.current) {
-        render(pipelineRef.current, imageRef.current, optionsRef.current)
+        render(pipelineRef.current, imageRef.current, optionsRef.current, transformRef.current)
         onRenderRef.current?.(captureFnRef.current)
       }
     }
@@ -134,7 +137,7 @@ export function useInstantPhotoGL(
         imageRef.current = img
 
         if (pipelineRef.current) {
-          render(pipelineRef.current, img, options)
+          render(pipelineRef.current, img, options, transform)
           onRenderRef.current?.(captureFnRef.current)
         }
       })
@@ -146,17 +149,19 @@ export function useInstantPhotoGL(
     return () => {
       cancelled = true
     }
-    // Re-run only when src changes; options are read via closure at render time
+    // Re-run only when src changes; options/transform are read via closure at render time
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src])
 
   // -------------------------------------------------------------------------
-  // 4. Re-render when GL options change (image already loaded)
+  // 4. Re-render when GL options or the transform change (image already loaded)
   //
   // canvasW / canvasH are included so that a frameType switch (which changes
   // canvas dimensions via useLayoutEffect above) also triggers a re-render.
   // By the time this effect fires, useLayoutEffect has already updated the
-  // canvas dimensions.
+  // canvas dimensions. transform's fields are listed individually (not the
+  // object itself) so a new-but-equal transform object doesn't force an
+  // unnecessary re-render.
   // -------------------------------------------------------------------------
   const {
     filmType,
@@ -181,7 +186,7 @@ export function useInstantPhotoGL(
 
   useEffect(() => {
     if (pipelineRef.current && imageRef.current) {
-      render(pipelineRef.current, imageRef.current, options)
+      render(pipelineRef.current, imageRef.current, options, transform)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -205,5 +210,8 @@ export function useInstantPhotoGL(
     shadowFineStart,
     shadowFineEnd,
     seed,
+    transform?.panX,
+    transform?.panY,
+    transform?.scale,
   ])
 }

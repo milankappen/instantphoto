@@ -42,6 +42,7 @@ export function InstantPhotoFrame({
   shadowFineStart,
   shadowFineEnd,
   seed = 0,
+  transform,
   width = '100%',
   className,
   style,
@@ -118,6 +119,7 @@ export function InstantPhotoFrame({
       shadowFineEnd: resolvedShadowFineEnd,
       seed,
     },
+    transform,
     { onRender, onError, captureFn }
   )
 
