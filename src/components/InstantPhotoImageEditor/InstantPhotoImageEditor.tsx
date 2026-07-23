@@ -50,6 +50,7 @@ export function InstantPhotoImageEditor({
   shadowFineStart,
   shadowFineEnd,
   seed = 0,
+  transform,
   maxZoom = 5,
   onRenderDelay = 600,
   liveUpdateDuringGesture,
@@ -65,7 +66,7 @@ export function InstantPhotoImageEditor({
 }: InstantPhotoImageEditorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const frameRef = useRef<HTMLDivElement>(null)
-  const transformRef = useRef<ImageTransform>({ panX: 0, panY: 0, scale: 1 })
+  const transformRef = useRef<ImageTransform>(transform ?? { panX: 0, panY: 0, scale: 1 })
   // Auto-detect once at mount time; explicit prop always wins
   const effectiveLiveUpdate = useRef(liveUpdateDuringGesture ?? !detectLowEndDevice()).current
 
@@ -102,13 +103,20 @@ export function InstantPhotoImageEditor({
   })
 
   // -------------------------------------------------------------------------
-  // Reset transform when src or frameType changes.
+  // Reset transform when src or frameType changes — to the `transform` prop
+  // if one was given (re-opening a previously-edited photo resumes exactly
+  // where it left off), otherwise to identity (center-fill, no zoom).
   // This effect intentionally runs BEFORE useInteractiveGL's effects (React
-  // runs effects in declaration order) so the new image/frame renders with a
-  // clean pan/zoom state.
+  // runs effects in declaration order) so the new image/frame renders with
+  // the right pan/zoom state from the start.
+  //
+  // `transform` is deliberately NOT a dependency here: this only seeds the
+  // ref for a *new* src/frameType, it must not resync on every render and
+  // fight the user's in-progress gestures on the *current* image.
   // -------------------------------------------------------------------------
   useEffect(() => {
-    transformRef.current = { panX: 0, panY: 0, scale: 1 }
+    transformRef.current = transform ?? { panX: 0, panY: 0, scale: 1 }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src, frameType])
 
   // -------------------------------------------------------------------------
@@ -222,7 +230,13 @@ export function InstantPhotoImageEditor({
   })
 
   // -------------------------------------------------------------------------
-  // Emit onSettingsChange whenever transform or effect params change
+  // Emit onSettingsChange whenever transform or effect params change.
+  //
+  // `src` is included so a snapshot fires whenever the editor switches to a
+  // new image — otherwise, since the transform-reset effect above runs in
+  // the same commit and doesn't call onSettingsChange itself, a consumer
+  // persisting `settings.transform` would keep the *previous* image's
+  // transform in its last snapshot until some unrelated effect param changed.
   // -------------------------------------------------------------------------
   useEffect(() => {
     const settings: InstantPhotoSettings = {
@@ -247,6 +261,7 @@ export function InstantPhotoImageEditor({
     }
     onSettingsChangeRef.current?.(settings)
   }, [
+    src,
     frameType,
     filmType,
     resolvedGrain,

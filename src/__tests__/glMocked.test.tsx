@@ -153,6 +153,37 @@ describe('InstantPhotoFrame – with mocked WebGL pipeline', () => {
     // May be Blob or null depending on the 2D context availability
     expect(result === null || result instanceof Blob).toBe(true)
   })
+
+  it('passes the transform prop through to the GL render call', async () => {
+    const transform = { panX: 0.1, panY: -0.05, scale: 1.5 }
+    render(<InstantPhotoFrame src="test.jpg" transform={transform} />)
+    await waitFor(() => expect(vi.mocked(glRender)).toHaveBeenCalled())
+    const lastCall = vi.mocked(glRender).mock.calls[vi.mocked(glRender).mock.calls.length - 1]!
+    expect(lastCall[3]).toEqual(transform)
+  })
+
+  it('re-renders with the updated transform when the transform prop changes', async () => {
+    const first = { panX: 0, panY: 0, scale: 1 }
+    const second = { panX: 0.2, panY: 0.1, scale: 2 }
+    const { rerender } = render(<InstantPhotoFrame src="test.jpg" transform={first} />)
+    await waitFor(() => expect(vi.mocked(glRender)).toHaveBeenCalled())
+
+    act(() => {
+      rerender(<InstantPhotoFrame src="test.jpg" transform={second} />)
+    })
+
+    await waitFor(() => {
+      const lastCall = vi.mocked(glRender).mock.calls[vi.mocked(glRender).mock.calls.length - 1]!
+      expect(lastCall[3]).toEqual(second)
+    })
+  })
+
+  it('renders with an undefined transform (auto center-fill) when the prop is omitted', async () => {
+    render(<InstantPhotoFrame src="test.jpg" />)
+    await waitFor(() => expect(vi.mocked(glRender)).toHaveBeenCalled())
+    const lastCall = vi.mocked(glRender).mock.calls[vi.mocked(glRender).mock.calls.length - 1]!
+    expect(lastCall[3]).toBeUndefined()
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -230,6 +261,66 @@ describe('InstantPhotoImageEditor – with mocked WebGL pipeline', () => {
     const onSettingsChange = vi.fn()
     render(<InstantPhotoImageEditor onSettingsChange={onSettingsChange} />)
     await waitFor(() => expect(onSettingsChange).toHaveBeenCalled())
+  })
+
+  it('seeds the initial transform from the transform prop instead of identity', async () => {
+    const initial = { panX: 0.15, panY: -0.1, scale: 2 }
+    render(<InstantPhotoImageEditor src="test.jpg" transform={initial} />)
+    await waitFor(() => expect(vi.mocked(glRender)).toHaveBeenCalled())
+    const lastCall = vi.mocked(glRender).mock.calls[vi.mocked(glRender).mock.calls.length - 1]!
+    expect(lastCall[3]).toEqual(initial)
+  })
+
+  it('reports the seeded initial transform via onSettingsChange', async () => {
+    const initial = { panX: 0.15, panY: -0.1, scale: 2 }
+    const onSettingsChange = vi.fn()
+    render(
+      <InstantPhotoImageEditor
+        src="test.jpg"
+        transform={initial}
+        onSettingsChange={onSettingsChange}
+      />
+    )
+    await waitFor(() => expect(onSettingsChange).toHaveBeenCalled())
+    const lastCall =
+      vi.mocked(onSettingsChange).mock.calls[vi.mocked(onSettingsChange).mock.calls.length - 1]!
+    expect(lastCall[0].transform).toEqual(initial)
+  })
+
+  it('falls back to identity transform when no transform prop is given', async () => {
+    const onSettingsChange = vi.fn()
+    render(<InstantPhotoImageEditor src="test.jpg" onSettingsChange={onSettingsChange} />)
+    await waitFor(() => expect(onSettingsChange).toHaveBeenCalled())
+    const lastCall =
+      vi.mocked(onSettingsChange).mock.calls[vi.mocked(onSettingsChange).mock.calls.length - 1]!
+    expect(lastCall[0].transform).toEqual({ panX: 0, panY: 0, scale: 1 })
+  })
+
+  it('re-seeds the transform when a new src loads with a new initial transform', async () => {
+    const first = { panX: 0, panY: 0, scale: 1 }
+    const second = { panX: 0.3, panY: 0.2, scale: 3 }
+    const onSettingsChange = vi.fn()
+    const { rerender } = render(
+      <InstantPhotoImageEditor src="a.jpg" transform={first} onSettingsChange={onSettingsChange} />
+    )
+    await waitFor(() => expect(vi.mocked(loadImageBitmap)).toHaveBeenCalledWith('a.jpg'))
+
+    act(() => {
+      rerender(
+        <InstantPhotoImageEditor
+          src="b.jpg"
+          transform={second}
+          onSettingsChange={onSettingsChange}
+        />
+      )
+    })
+
+    await waitFor(() => expect(vi.mocked(loadImageBitmap)).toHaveBeenCalledWith('b.jpg'))
+    await waitFor(() => {
+      const lastCall =
+        vi.mocked(onSettingsChange).mock.calls[vi.mocked(onSettingsChange).mock.calls.length - 1]!
+      expect(lastCall[0].transform).toEqual(second)
+    })
   })
 
   it('covers naturalWidth branch when src is an HTMLImageElement', async () => {
