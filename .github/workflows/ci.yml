@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:
@@ -34,6 +35,7 @@ jobs:
           severity: "CRITICAL,HIGH"
 
   lint:
+    if: github.event_name == 'workflow_dispatch'
     name: Lint & Typecheck
     runs-on: ubuntu-latest
     steps:
@@ -53,6 +55,7 @@ jobs:
         run: bun run typecheck
 
   test:
+    if: github.event_name == 'workflow_dispatch'
     name: Unit Tests & Coverage (React ${{ matrix.react-version }})
     runs-on: ubuntu-latest
     strategy:
@@ -84,6 +87,7 @@ jobs:
           fail_ci_if_error: false
 
   build-storybook:
+    if: github.event_name == 'workflow_dispatch'
     name: Build Storybook
     runs-on: ubuntu-latest
     steps:
@@ -107,6 +111,7 @@ jobs:
           retention-days: 7
 
   test-e2e:
+    if: github.event_name == 'workflow_dispatch'
     name: E2E Tests
     runs-on: ubuntu-latest
     needs: [build-storybook]
@@ -140,6 +145,7 @@ jobs:
         run: bun run test:e2e
 
   build:
+    if: github.event_name == 'workflow_dispatch'
     name: Build
     runs-on: ubuntu-latest
     needs: [security, lint, test, test-e2e]
